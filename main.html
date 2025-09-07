@@ -1,0 +1,206 @@
+# Creating a single-file HTML (all-in-one) with lessons 1-40 translated to Vietnamese (basic vocab)
+html = r"""<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Flashcards EPS-TOPIK — Bài 1-40 (Hàn → Việt)</title>
+<style>
+:root{--card-h:360px;--w:420px}
+*{box-sizing:border-box}
+body{font-family:Inter, "Helvetica Neue", Arial; background:#0f1720; color:#e6eef2; display:flex;justify-content:center;padding:20px;margin:0}
+.wrap{width:var(--w);max-width:96vw;background:#f6f8fa;color:#111;border-radius:12px;padding:16px;box-shadow:0 12px 36px rgba(2,10,20,.6)}
+header{display:flex;gap:8px;align-items:center;margin-bottom:12px}
+select, button, input{padding:10px 12px;border-radius:8px;border:1px solid rgba(0,0,0,.08);font-size:15px}
+.btn{background:#0b6b43;color:#fff;border:none;cursor:pointer}
+.btn.secondary{background:#fff;color:#0b6b43;border:2px solid #0b6b43}
+.mode{display:flex;gap:8px;margin-left:auto}
+.card-area{background:white;padding:14px;border-radius:10px;box-shadow:0 8px 20px rgba(0,0,0,.12)}
+.card{height:var(--card-h);border-radius:10px;perspective:1200px;position:relative;cursor:pointer;margin-bottom:8px}
+.face{position:absolute;inset:0;border-radius:10px;backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:transform .45s cubic-bezier(.2,.9,.3,1);color:#fff;padding:18px;text-align:center}
+.front{background:linear-gradient(180deg,#f08b2d,#ef7f1a);transform:rotateY(0);}
+.back{background:linear-gradient(180deg,#10323b,#0b1f24);transform:rotateY(180deg);}
+.card.flipped .front{transform:rotateY(-180deg)}
+.card.flipped .back{transform:rotateY(0)}
+.korean{font-size:56px;font-weight:700;letter-spacing:1px}
+.mean{font-size:22px;line-height:1.4}
+.controls{display:flex;gap:8px;align-items:center;margin-top:8px}
+.nav{padding:10px 14px;border-radius:8px;background:#0b6b43;color:#fff;border:none;cursor:pointer}
+.small{padding:8px 10px;border-radius:8px;background:#143;color:#fff;border:none}
+.progress{margin-left:auto;font-weight:700}
+.meta{margin-top:8px;color:#38444a;font-size:13px}
+footer{margin-top:12px;display:flex;gap:8px;justify-content:space-between;align-items:center}
+.search{flex:1;padding:10px;border-radius:8px;border:1px solid #ddd}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <select id="lessonSelect"></select>
+    <div class="mode">
+      <button id="orderBtn" class="btn secondary">Theo thứ tự</button>
+      <button id="shuffleBtn" class="btn">Ngẫu nhiên</button>
+    </div>
+    <input id="filter" class="search" placeholder="Tìm từ (Hàn/Việt)..." />
+  </header>
+
+  <section class="card-area">
+    <div id="card" class="card" title="Click hoặc nhấn Space để lật">
+      <div class="face front"><div id="frontText" class="korean">단어</div></div>
+      <div class="face back"><div id="backText" class="mean">Nghĩa tiếng Việt</div></div>
+    </div>
+
+    <div class="controls">
+      <button id="prev" class="nav">← Trước</button>
+      <button id="speak" class="nav">🔊 Phát âm</button>
+      <button id="next" class="nav">Sau →</button>
+      <div class="progress" id="progress">0 / 0</div>
+    </div>
+
+    <div class="meta">
+      <div>Chạm/Click để lật. Space cũng lật. Dữ liệu: Từ vựng cơ bản Bài 1–Bài 40 (Hàn → Việt).</div>
+    </div>
+  </section>
+
+  <footer>
+    <div>Flashcards — EPS-TOPIK</div>
+    <div><button id="download" class="small">Tải HTML</button></div>
+  </footer>
+</div>
+
+<script>
+const LESSONS = {
+ "1":[ {k:"이",v:"này, này (đại từ chỉ) / chữ 'i' (âm)"}, {k:"오",v:"năm (sino) / tới"}, {k:"아이",v:"trẻ con, em bé"}, {k:"오이",v:"dưa chuột"}, {k:"우유",v:"sữa"}, {k:"여우",v:"cáo"}, {k:"예",v:"vâng; có"}, {k:"와",v:"và; đến (thân mật)"}, {k:"왜",v:"tại sao"}, {k:"와요",v:"đến (lịch sự)?"}, {k:"위에",v:"ở trên"}, {k:"외워요",v:"học thuộc, ghi nhớ"} ],
+ "2":[ {k:"가수",v:"ca sĩ"}, {k:"아기",v:"em bé"}, {k:"네모",v:"hình vuông"}, {k:"다리",v:"chân; cầu"}, {k:"소리",v:"âm thanh"}, {k:"아버지",v:"cha, bố"}, {k:"사자",v:"sư tử"}, {k:"새우",v:"tôm"}, {k:"지우개",v:"cục tẩy"}, {k:"치마",v:"váy"}, {k:"코",v:"mũi"}, {k:"타조",v:"đà điểu"}, {k:"모자",v:"mũ"}, {k:"꽃",v:"hoa"}, {k:"별",v:"ngôi sao"}, {k:"포도",v:"nho"}, {k:"호수",v:"hồ"}, {k:"까치",v:"chim ác là (magpie)"}, {k:"어깨",v:"vai"}, {k:"뿌리",v:"rễ"} ],
+ "3":[ {k:"선생님",v:"giáo viên"}, {k:"학생",v:"học sinh"}, {k:"반친구",v:"bạn cùng lớp"}, {k:"칠판",v:"bảng"}, {k:"책상",v:"bàn học"}, {k:"의자",v:"ghế"}, {k:"책",v:"sách"}, {k:"공책",v:"vở"}, {k:"연필",v:"bút chì"}, {k:"볼펜",v:"bút bi"}, {k:"지우개",v:"gôm tẩy"}, {k:"필통",v:"hộp bút"}, {k:"시계",v:"đồng hồ"}, {k:"달력",v:"lịch"}, {k:"보세요",v:"hãy xem"}, {k:"들으세요",v:"hãy nghe"}, {k:"따라하세요",v:"hãy lặp lại"}, {k:"읽으세요",v:"hãy đọc"}, {k:"쓰세요",v:"hãy viết"}, {k:"이야기하세요",v:"hãy kể"} ],
+ "4":[ {k:"한국",v:"Hàn Quốc"}, {k:"네팔",v:"Nepal"}, {k:"동티모르",v:"Đông Timor"}, {k:"몽골",v:"Mông Cổ"}, {k:"미얀마",v:"Myanmar"}, {k:"방글라데시",v:"Bangladesh"}, {k:"베트남",v:"Việt Nam"}, {k:"스리랑카",v:"Sri Lanka"}, {k:"우즈베키스탄",v:"Uzbekistan"}, {k:"태국",v:"Thái Lan"}, {k:"인도네시아",v:"Indonesia"}, {k:"중국",v:"Trung Quốc"}, {k:"캄보디아",v:"Campuchia"}, {k:"키르기스스탄",v:"Kyrgyzstan"}, {k:"필리핀",v:"Philippines"}, {k:"파키스탄",v:"Pakistan"} ],
+ "5":[ {k:"여기",v:"ở đây"}, {k:"저기",v:"kia kia (xa người nói)"}, {k:"거기",v:"ở đó (gần người nghe)"}, {k:"어디",v:"đâu; ở đâu"}, {k:"회사",v:"công ty"}, {k:"사무실",v:"văn phòng"}, {k:"화장실",v:"nhà vệ sinh"}, {k:"식당",v:"nhà ăn, nhà hàng"}, {k:"집",v:"nhà"}, {k:"기숙사",v:"ký túc xá"}, {k:"시장",v:"chợ"}, {k:"마트",v:"siêu thị"}, {k:"편의점",v:"cửa hàng tiện lợi"}, {k:"슈퍼마켓",v:"siêu thị nhỏ"}, {k:"샴푸",v:"dầu gội"}, {k:"비누",v:"xà phòng"}, {k:"칫솔",v:"bàn chải đánh răng"}, {k:"치약",v:"kem đánh răng"}, {k:"수건",v:"khăn"}, {k:"면도기",v:"dao cạo"} ],
+ "6":[ {k:"일어나다",v:"thức dậy"}, {k:"씻다",v:"rửa; tắm rửa"}, {k:"아침을 먹다",v:"ăn sáng"}, {k:"회사에 가다",v:"đi công ty"}, {k:"일하다",v:"làm việc"}, {k:"쉬다",v:"nghỉ ngơi"}, {k:"점심을 먹다",v:"ăn trưa"}, {k:"집에 오다",v:"về nhà"}, {k:"장을 보다",v:"mua sắm đi chợ"}, {k:"요리하다",v:"nấu ăn"}, {k:"저녁을 먹다",v:"ăn tối"}, {k:"커피를 마시다",v:"uống cà phê"}, {k:"운동하다",v:"tập thể dục"}, {k:"자다",v:"ngủ"}, {k:"지금",v:"bây giờ"} ],
+ "7":[ {k:"가족",v:"gia đình"}, {k:"있다",v:"có"}, {k:"없다",v:"không có"}, {k:"많다",v:"nhiều"}, {k:"살다",v:"sống"}, {k:"할아버지",v:"ông"}, {k:"할머니",v:"bà"}, {k:"아버지",v:"cha"}, {k:"어머니",v:"mẹ"}, {k:"형",v:"anh (dành cho nam)"} ],
+ "8":[ {k:"사과",v:"táo"}, {k:"오렌지",v:"cam"}, {k:"포도",v:"nho"}, {k:"수박",v:"dưa hấu"}, {k:"물",v:"nước"}, {k:"주스",v:"nước ép"}, {k:"우유",v:"sữa"}, {k:"빵",v:"bánh mì"}, {k:"라면",v:"mỳ ăn liền"}, {k:"과자",v:"bánh kẹo"} ],
+ "9":[ {k:"병원",v:"bệnh viện"}, {k:"약국",v:"nhà thuốc"}, {k:"내과",v:"khoa nội"}, {k:"정형외과",v:"khoa chỉnh hình"}, {k:"치과",v:"nha khoa"}, {k:"안과",v:"khoa mắt"}, {k:"주사",v:"tiêm"}, {k:"약",v:"thuốc"}, {k:"열",v:"sốt"}, {k:"기침",v:"ho"} ],
+ "10":[ {k:"날짜",v:"ngày tháng"}, {k:"월",v:"tháng"}, {k:"일",v:"ngày"}, {k:"오늘",v:"hôm nay"}, {k:"어제",v:"hôm qua"}, {k:"내일",v:"ngày mai"}, {k:"오전",v:"buổi sáng"}, {k:"오후",v:"buổi chiều"}, {k:"시",v:"giờ"}, {k:"분",v:"phút"} ],
+ "11":[ {k:"공원",v:"công viên"}, {k:"산책하다",v:"đi dạo"}, {k:"운동하다",v:"tập thể dục"}, {k:"게임하다",v:"chơi game"}, {k:"영화를 보다",v:"xem phim"}, {k:"친구를 만나다",v:"gặp bạn"}, {k:"독서하다",v:"đọc sách"}, {k:"노래하다",v:"hát"}, {k:"사진을 찍다",v:"chụp ảnh"}, {k:"산",v:"núi"} ],
+ "12":[ {k:"은행",v:"ngân hàng"}, {k:"창구",v:"quầy giao dịch"}, {k:"통장",v:"sổ tiết kiệm"}, {k:"환전하다",v:"đổi tiền"}, {k:"입금하다",v:"gửi tiền"}, {k:"출금하다",v:"rút tiền"}, {k:"신분증",v:"chứng minh thư"}, {k:"계좌번호",v:"số tài khoản"}, {k:"수수료",v:"phí"}, {k:"잔액조회",v:"kiểm tra số dư"} ],
+ "13":[ {k:"여행지",v:"điểm du lịch"}, {k:"표를 사다",v:"mua vé"}, {k:"호텔",v:"khách sạn"}, {k:"숙소",v:"nơi ở"}, {k:"짐",v:"hành lý"}, {k:"도착하다",v:"đến nơi"}, {k:"출발하다",v:"khởi hành"}, {k:"비행기",v:"máy bay"}, {k:"배",v:"tàu"}, {k:"섬",v:"đảo"} ],
+ "14":[ {k:"교통",v:"giao thông"}, {k:"버스",v:"xe buýt"}, {k:"지하철",v:"tàu điện ngầm"}, {k:"택시",v:"xe taxi"}, {k:"기차",v:"tàu hoả"}, {k:"공항",v:"sân bay"}, {k:"정류장",v:"trạm"}, {k:"환승",v:"chuyển tuyến"}, {k:"표",v:"vé"}, {k:"승강장",v:"sân ga"} ],
+ "15":[ {k:"음식",v:"đồ ăn"}, {k:"메뉴",v:"thực đơn"}, {k:"밥",v:"cơm"}, {k:"반찬",v:"món ăn kèm"}, {k:"숟가락",v:"muỗng"}, {k:"젓가락",v:"đũa"}, {k:"주문하다",v:"gọi món"}, {k:"맛있다",v:"ngon"}, {k:"맵다",v:"cay"}, {k:"달다",v:"ngọt"} ],
+ "16":[ {k:"날씨",v:"thời tiết"}, {k:"비",v:"mưa"}, {k:"눈",v:"tuyết"}, {k:"바람",v:"gió"}, {k:"맑다",v:"trời quang"}, {k:"흐리다",v:"u ám"}, {k:"덥다",v:"nóng"}, {k:"춥다",v:"lạnh"}, {k:"봄",v:"mùa xuân"}, {k:"여름",v:"mùa hè"} ],
+ "17":[ {k:"취미",v:"sở thích"}, {k:"독서",v:"đọc sách"}, {k:"낚시",v:"câu cá"}, {k:"여행",v:"du lịch"}, {k:"등산",v:"leo núi"}, {k:"운동",v:"thể thao"}, {k:"음악",v:"âm nhạc"}, {k:"춤",v:"nhảy"}, {k:"축구",v:"bóng đá"}, {k:"테니스",v:"tennis"} ],
+ "18":[ {k:"문화",v:"văn hóa"}, {k:"예절",v:"lễ phép"}, {k:"인사",v:"chào hỏi"}, {k:"신발을 벗다",v:"cởi giày"}, {k:"좌식",v:"ngồi trên sàn"}, {k:"식사",v:"bữa ăn"}, {k:"공휴일",v:"ngày lễ"}, {k:"추석",v:"Tết Trung thu"}, {k:"설날",v:"Tết Nguyên đán"}, {k:"크리스마스",v:"Giáng sinh"} ],
+ "19":[ {k:"전화",v:"điện thoại"}, {k:"휴대폰",v:"điện thoại di động"}, {k:"문자",v:"tin nhắn"}, {k:"인터넷",v:"internet"}, {k:"이메일",v:"email"}, {k:"로그인",v:"đăng nhập"}, {k:"비밀번호",v:"mật khẩu"}, {k:"회원가입",v:"đăng ký"}, {k:"검색",v:"tìm kiếm"}, {k:"홈페이지",v:"trang chủ"} ],
+ "20":[ {k:"청소",v:"dọn dẹp"}, {k:"더럽다",v:"bẩn"}, {k:"깨끗하다",v:"sạch"}, {k:"정리하다",v:"sắp xếp"}, {k:"쓰레기",v:"rác"}, {k:"빨래",v:"giặt đồ"}, {k:"세탁기",v:"máy giặt"}, {k:"걸레",v:"giẻ lau"}, {k:"빗자루",v:"chổi"}, {k:"휴지통",v:"thùng rác"} ],
+
+ // Lessons 21-40: translated according to the PDF word lists (basic vocab)
+ "21":[ {k:"약속",v:"cuộc hẹn, lời hẹn"}, {k:"초대하다",v:"mời"}, {k:"선물",v:"quà"}, {k:"상차리다",v:"bày bàn ăn, sắp mâm"}, {k:"음식",v:"đồ ăn"}, {k:"준비하다",v:"chuẩn bị"}, {k:"손님",v:"khách"}, {k:"집들이",v:"tiệc mừng nhà mới"}, {k:"부부",v:"vợ chồng"}, {k:"세트",v:"bộ, set"} ],
+ "22":[ {k:"금지",v:"cấm"}, {k:"금연",v:"cấm hút thuốc"}, {k:"무단횡단",v:"băng qua đường không đúng nơi"}, {k:"주차금지",v:"cấm đỗ xe"}, {k:"표지판",v:"biển báo"}, {k:"벌금",v:"phạt tiền"}, {k:"위험하다",v:"nguy hiểm"}, {k:"양보하다",v:"nhường nhịn"}, {k:"사고",v:"tai nạn"}, {k:"에스컬레이터",v:"thang cuốn"} ],
+ "23":[ {k:"어른",v:"người lớn, người bề trên"}, {k:"두손으로",v:"bằng hai tay"}, {k:"드리다",v:"biếu, tặng (kính ngữ của 주다)"}, {k:"말씀",v:"lời nói (kính ngữ)"}, {k:"연세",v:"tuổi (kính ngữ)"}, {k:"예절",v:"lễ nghĩa"}, {k:"존댓말",v:"lời nói kính trọng"}, {k:"실례",v:"lỗi, thất lễ"}, {k:"예의를 지키다",v:"giữ lễ nghĩa"}, {k:"허리를 숙이다",v:"cúi chào"} ],
+ "24":[ {k:"공부",v:"học"}, {k:"수업",v:"bài học; tiết học"}, {k:"복습하다",v:"ôn bài"}, {k:"예습하다",v:"chuẩn bị bài trước"}, {k:"자격증",v:"chứng chỉ"}, {k:"학원",v:"trung tâm học"}, {k:"인터넷강의",v:"khóa học trực tuyến"}, {k:"수업료",v:"học phí"}, {k:"현장",v:"hiện trường; thực hành"}, {k:"기능",v:"kỹ năng"} ],
+ "25":[ {k:"종교",v:"tôn giáo"}, {k:"교회",v:"nhà thờ"}, {k:"성당",v:"nhà thờ (Công giáo)"}, {k:"불교",v:"Phật giáo"}, {k:"기도하다",v:"cầu nguyện"}, {k:"예배",v:"lễ"}, {k:"신자",v:"tín đồ"}, {k:"미사",v:"thánh lễ"}, {k:"찬불가",v:"bài thánh ca Phật giáo"}, {k:"헌금",v:"tiền dâng"} ],
+ "26":[ {k:"머리",v:"đầu"}, {k:"눈",v:"mắt"}, {k:"코",v:"mũi"}, {k:"입",v:"miệng"}, {k:"귀",v:"tai"}, {k:"어깨",v:"vai"}, {k:"팔",v:"cánh tay"}, {k:"손",v:"bàn tay"}, {k:"배",v:"bụng"}, {k:"열이 나다",v:"bị sốt"} ],
+ "27":[ {k:"병원",v:"bệnh viện"}, {k:"내과",v:"khoa nội"}, {k:"정형외과",v:"khoa chỉnh hình"}, {k:"치과",v:"nha khoa"}, {k:"주사",v:"tiêm"}, {k:"처방",v:"đơn thuốc"}, {k:"수술",v:"phẫu thuật"}, {k:"소독",v:"khử trùng"}, {k:"응급",v:"khẩn cấp"}, {k:"검진",v:"khám sức khỏe"} ],
+ "28":[ {k:"은행",v:"ngân hàng"}, {k:"통장",v:"sổ ngân hàng"}, {k:"입금",v:"gửi tiền"}, {k:"출금",v:"rút tiền"}, {k:"환전",v:"đổi ngoại tệ"}, {k:"비밀번호",v:"mật khẩu"}, {k:"계좌번호",v:"số tài khoản"}, {k:"수수료",v:"phí giao dịch"}, {k:"잔액조회",v:"kiểm tra số dư"}, {k:"체크카드",v:"thẻ ghi nợ"} ],
+ "29":[ {k:"우편물",v:"bưu phẩm"}, {k:"편지",v:"thư"}, {k:"엽서",v:"bưu thiếp"}, {k:"우표",v:"tem"}, {k:"소포",v:"bưu kiện"}, {k:"택배",v:"giao hàng"}, {k:"등기우편",v:"thư đảm bảo"}, {k:"이메일",v:"email"}, {k:"배편",v:"gửi đường biển"}, {k:"항공권",v:"vé máy bay"} ],
+ "30":[ {k:"교육",v:"giáo dục"}, {k:"한국어 교육",v:"giáo dục tiếng Hàn"}, {k:"컴퓨터 교육",v:"đào tạo máy tính"}, {k:"태권도 교육",v:"lớp Taekwondo"}, {k:"안전 교육",v:"đào tạo an toàn"}, {k:"법률 교육",v:"đào tạo pháp luật"}, {k:"영양 교육",v:"giáo dục dinh dưỡng"}, {k:"프로그램",v:"chương trình"}, {k:"센터",v:"trung tâm"}, {k:"강습",v:"khóa học"} ],
+ "31":[ {k:"종교활동",v:"hoạt động tôn giáo"}, {k:"믿다",v:"tin tưởng; tin"}, {k:"기도하다",v:"cầu nguyện"}, {k:"성당",v:"nhà thờ (Công giáo)"}, {k:"교회",v:"nhà thờ"}, {k:"불교",v:"Phật giáo"}, {k:"성지순례",v:"hành hương"}, {k:"장례",v:"đám tang"}, {k:"축제",v:"lễ hội"}, {k:"행사",v:"sự kiện"} ],
+ "32":[ {k:"신체",v:"cơ thể"}, {k:"머리",v:"đầu"}, {k:"어깨",v:"vai"}, {k:"팔",v:"tay"}, {k:"다리",v:"chân"}, {k:"손목",v:"cổ tay"}, {k:"발목",v:"mắt cá chân"}, {k:"통증",v:"đau"}, {k:"증상",v:"triệu chứng"}, {k:"약",v:"thuốc"} ],
+ "33":[ {k:"병원",v:"bệnh viện"}, {k:"응급",v:"khẩn cấp"}, {k:"의사",v:"bác sĩ"}, {k:"간호사",v:"y tá"}, {k:"처방전",v:"đơn thuốc"}, {k:"진료",v:"khám bệnh"}, {k:"수술",v:"phẫu thuật"}, {k:"검사",v:"xét nghiệm"}, {k:"진단",v:"chuẩn đoán"}, {k:"치료",v:"điều trị"} ],
+ "34":[ {k:"취미",v:"sở thích"}, {k:"독서하다",v:"đọc sách"}, {k:"여행하다",v:"du lịch"}, {k:"사진찍다",v:"chụp ảnh"}, {k:"운동하다",v:"tập thể dục"}, {k:"축구",v:"bóng đá"}, {k:"농구",v:"bóng rổ"}, {k:"테니스",v:"quần vợt"}, {k:"수영",v:"bơi"}, {k:"자전거타다",v:"đạp xe"} ],
+ "35":[ {k:"여행지",v:"điểm du lịch"}, {k:"호텔",v:"khách sạn"}, {k:"숙소",v:"nơi ở"}, {k:"예약",v:"đặt trước"}, {k:"비행기표",v:"vé máy bay"}, {k:"박물관",v:"bảo tàng"}, {k:"놀이공원",v:"công viên giải trí"}, {k:"기념품",v:"quà lưu niệm"}, {k:"관광",v:"tham quan"}, {k:"축제",v:"lễ hội"} ],
+ "36":[ {k:"교통",v:"giao thông"}, {k:"버스정류장",v:"trạm xe buýt"}, {k:"지하철역",v:"ga tàu điện ngầm"}, {k:"기차역",v:"ga tàu"}, {k:"공항",v:"sân bay"}, {k:"택시승강장",v:"bến taxi"}, {k:"환승",v:"chuyển tuyến"}, {k:"표",v:"vé"}, {k:"교통카드",v:"thẻ giao thông"}, {k:"운전",v:"lái xe"} ],
+ "37":[ {k:"전화",v:"điện thoại"}, {k:"휴대폰",v:"điện thoại di động"}, {k:"통화",v:"gọi điện"}, {k:"문자",v:"tin nhắn"}, {k:"인터넷",v:"internet"}, {k:"이메일",v:"email"}, {k:"블로그",v:"blog"}, {k:"홈페이지",v:"trang web"}, {k:"검색엔진",v:"công cụ tìm kiếm"}, {k:"로그인",v:"đăng nhập"} ],
+ "38":[ {k:"청소",v:"dọn dẹp"}, {k:"빨래",v:"giặt đồ"}, {k:"세탁기",v:"máy giặt"}, {k:"쓰레기버리다",v:"vứt rác"}, {k:"재활용",v:"tái chế"}, {k:"분리수거",v:"phân loại rác"}, {k:"청소도구",v:"dụng cụ dọn dẹp"}, {k:"걸레",v:"giẻ lau"}, {k:"빗자루",v:"chổi"}, {k:"휴지통",v:"thùng rác"} ],
+ "39":[ {k:"교육",v:"giáo dục"}, {k:"수업료",v:"học phí"}, {k:"학원",v:"trung tâm học"}, {k:"수강신청",v:"đăng ký học"}, {k:"수업시간",v:"thời gian học"}, {k:"교사",v:"giáo viên"}, {k:"학생",v:"học sinh"}, {k:"교재",v:"tài liệu"}, {k:"시험",v:"kỳ thi"}, {k:"자격증",v:"chứng chỉ"} ],
+ "40":[ {k:"음식메뉴",v:"thực đơn"}, {k:"김치찌개",v:"canh kimchi"}, {k:"된장찌개",v:"canh tương đậu nành (doenjang jjigae)"}, {k:"비빔밥",v:"cơm trộn (bibimbap)"}, {k:"불고기",v:"thịt bò nướng (bulgogi)"}, {k:"김밥",v:"cơm cuộn (kimbap)"}, {k:"떡볶이",v:"tteokbokki (bánh gạo cay)"}, {k:"우동",v:"mỳ udon"}, {k:"초밥",v:"sushi/ cơm cuộn Nhật"}, {k:"치킨",v:"gà rán"} ]
+};
+
+// UI
+const lessonSelect = document.getElementById('lessonSelect');
+const card = document.getElementById('card');
+const front = document.getElementById('frontText');
+const back = document.getElementById('backText');
+const progress = document.getElementById('progress');
+const filterInput = document.getElementById('filter');
+
+let lessonKeys = Object.keys(LESSONS).slice(0,40);
+let currentLesson = "1";
+let list = [];
+let idx = 0;
+let mode = 'order';
+
+function populateLessons(){
+  lessonKeys.forEach(k=>{
+    const opt = document.createElement('option');
+    opt.value = k;
+    opt.text = `Bài ${k} (${LESSONS[k].length})`;
+    lessonSelect.appendChild(opt);
+  });
+  lessonSelect.value = currentLesson;
+}
+function loadLesson(k){
+  currentLesson = k;
+  list = LESSONS[k].map(x=>({k:x.k,v:x.v}));
+  if(mode==='shuffle') shuffle(list);
+  idx = 0;
+  render();
+}
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]] } }
+function render(){
+  if(!list || list.length===0){ front.textContent='(Không có từ)'; back.textContent=''; progress.textContent='0/0'; return; }
+  const it = list[idx];
+  front.textContent = it.k;
+  back.textContent = it.v ? it.v : 'Chưa có nghĩa — yêu cầu mình hoàn thiện';
+  progress.textContent = `${idx+1} / ${list.length}`;
+  card.classList.remove('flipped');
+}
+
+card.addEventListener('click', ()=> card.classList.toggle('flipped'));
+document.addEventListener('keydown', (e)=>{ if(e.code==='Space'){ e.preventDefault(); card.classList.toggle('flipped'); } });
+document.getElementById('prev').addEventListener('click', ()=>{ if(list.length===0) return; idx = (idx-1+list.length)%list.length; render(); });
+document.getElementById('next').addEventListener('click', ()=>{ if(list.length===0) return; idx = (idx+1)%list.length; render(); });
+document.getElementById('speak').addEventListener('click', ()=>{
+  const text = front.textContent || '';
+  if(!('speechSynthesis' in window)){ alert('Trình duyệt không hỗ trợ phát âm'); return; }
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'ko-KR';
+  const voices = speechSynthesis.getVoices();
+  const ko = voices.find(v=>v.lang && v.lang.startsWith('ko'));
+  if(ko) u.voice = ko;
+  speechSynthesis.speak(u);
+});
+
+document.getElementById('orderBtn').addEventListener('click', ()=>{ mode='order'; document.getElementById('orderBtn').classList.add('secondary'); document.getElementById('shuffleBtn').classList.remove('secondary'); loadLesson(currentLesson); });
+document.getElementById('shuffleBtn').addEventListener('click', ()=>{ mode='shuffle'; document.getElementById('shuffleBtn').classList.add('secondary'); document.getElementById('orderBtn').classList.remove('secondary'); loadLesson(currentLesson); });
+
+lessonSelect.addEventListener('change', (e)=> loadLesson(e.target.value));
+filterInput.addEventListener('input', ()=>{
+  const q = filterInput.value.trim().toLowerCase();
+  if(!q){ loadLesson(currentLesson); return; }
+  const full = LESSONS[currentLesson];
+  const filtered = full.filter(item => (item.k && item.k.toLowerCase().includes(q)) || (item.v && item.v.toLowerCase().includes(q)));
+  list = filtered.map(x=>({k:x.k,v:x.v}));
+  idx = 0;
+  render();
+});
+
+// download HTML
+document.getElementById('download').addEventListener('click', ()=>{
+  const blob = new Blob([document.documentElement.outerHTML], {type:'text/html;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'flashcards_eps_topik_1-40.html'; document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 1500);
+});
+
+populateLessons();
+loadLesson(currentLesson);
+</script>
+</body>
+</html>
+"""
+
+path = '/mnt/data/flashcards_eps_topik_1-40_complete.html'
+with open(path,'w',encoding='utf-8') as f:
+    f.write(html)
+path
+
