@@ -5,46 +5,397 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Flashcards EPS-TOPIK — Bài 1-10</title>
 <style>
-body{font-family:Arial,Helvetica,sans-serif;background:#0f1720;color:#eee;display:flex;justify-content:center;padding:20px;margin:0}
-.wrap{width:420px;max-width:96vw;background:#fff;color:#111;border-radius:12px;padding:16px;box-shadow:0 12px 36px rgba(2,10,20,.6)}
-header{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
-select,button,input{padding:8px 10px;border-radius:8px;font-size:14px}
-.btn{background:#0b6b43;color:#fff;border:none;cursor:pointer}
-.btn.secondary{background:#fff;color:#0b6b43;border:2px solid #0b6b43}
-.card{height:320px;border-radius:10px;perspective:1200px;position:relative;cursor:pointer;margin-bottom:8px}
-.face{position:absolute;inset:0;border-radius:10px;backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:transform .45s; padding:18px;text-align:center}
-.front{background:#f08b2d;color:#fff;transform:rotateY(0)}
-.back{background:#10323b;color:#fff;transform:rotateY(180deg)}
-.card.flipped .front{transform:rotateY(-180deg)}
-.card.flipped .back{transform:rotateY(0)}
-.korean{font-size:42px;font-weight:700}
-.mean{font-size:20px}
-.controls{display:flex;gap:8px;align-items:center;margin-top:8px}
-.nav{padding:8px 12px;border-radius:8px;background:#0b6b43;color:#fff;border:none;cursor:pointer}
-.progress{margin-left:auto;font-weight:700}
-.title{margin:8px 0;font-weight:bold;text-align:center;color:#0b6b43}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  color: #fff;
+  padding: 20px 10px;
+  overflow-x: hidden;
+}
+
+.container {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  animation: slideInUp 0.8s ease-out;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.header {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.lesson-selector {
+  margin-bottom: 15px;
+}
+
+.lesson-selector select {
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #333;
+  font-size: 16px;
+  font-weight: 600;
+  outline: none;
+  transition: all 0.3s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 20px;
+  padding-right: 45px;
+}
+
+.lesson-selector select:focus {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.controls-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.filter-input {
+  grid-column: 1 / -1;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #333;
+  font-size: 16px;
+  outline: none;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+.filter-input:focus {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.btn {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #ff6b6b, #ffa726);
+  color: white;
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.9);
+  color: #333;
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+}
+
+.btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.btn:active {
+  transform: translateY(-1px);
+}
+
+.lesson-title {
+  text-align: center;
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 25px;
+  color: #fff;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.card-container {
+  perspective: 1000px;
+  margin-bottom: 25px;
+}
+
+.card {
+  width: 100%;
+  height: 300px;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.card.flipped {
+  transform: rotateY(180deg);
+}
+
+.card-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  backface-visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 30px 20px;
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.card-front {
+  background: linear-gradient(135deg, #ff9a9e, #fecfef);
+  color: #333;
+  transform: rotateY(0deg);
+}
+
+.card-back {
+  background: linear-gradient(135deg, #a8edea, #fed6e3);
+  color: #333;
+  transform: rotateY(180deg);
+}
+
+.korean-text {
+  font-size: clamp(32px, 8vw, 48px);
+  font-weight: 900;
+  margin-bottom: 10px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  line-height: 1.2;
+}
+
+.meaning-text {
+  font-size: clamp(18px, 5vw, 24px);
+  font-weight: 600;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  line-height: 1.3;
+}
+
+.navigation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  flex-wrap: wrap;
+}
+
+.nav-btn {
+  padding: 12px 18px;
+  border: none;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #333;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 80px;
+}
+
+.nav-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.speak-btn {
+  background: linear-gradient(135deg, #4facfe, #00f2fe);
+  color: white;
+  font-size: 18px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.progress {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  min-width: 60px;
+  text-align: center;
+}
+
+.pulse {
+  animation: pulse 0.3s ease-in-out;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+
+.shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* Mobile optimizations */
+@media (max-width: 480px) {
+  body {
+    padding: 15px 8px;
+  }
+  
+  .header {
+    padding: 15px;
+    margin-bottom: 15px;
+  }
+  
+  .controls-row {
+    gap: 8px;
+  }
+  
+  .btn {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+  
+  .card {
+    height: 280px;
+  }
+  
+  .card-face {
+    padding: 20px 15px;
+  }
+  
+  .navigation {
+    padding: 15px;
+    gap: 10px;
+  }
+  
+  .nav-btn {
+    padding: 10px 14px;
+    font-size: 14px;
+    min-width: 70px;
+  }
+  
+  .speak-btn {
+    width: 45px;
+    height: 45px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 360px) {
+  .korean-text {
+    font-size: 28px;
+  }
+  
+  .meaning-text {
+    font-size: 16px;
+  }
+  
+  .card {
+    height: 260px;
+  }
+  
+  .navigation {
+    gap: 8px;
+  }
+  
+  .nav-btn {
+    padding: 8px 12px;
+    font-size: 13px;
+    min-width: 60px;
+  }
+}
+
+/* Loading animation */
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Smooth transitions */
+* {
+  transition: color 0.3s ease, background-color 0.3s ease;
+}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <select id="lessonSelect"></select>
-    <button id="orderBtn" class="btn secondary">Theo thứ tự</button>
-    <button id="shuffleBtn" class="btn">Ngẫu nhiên</button>
-    <input id="filter" placeholder="Tìm từ..." style="flex:1"/>
-  </header>
-  <div id="lessonTitle" class="title"></div>
-  <div id="card" class="card">
-    <div class="face front"><div id="frontText" class="korean">단어</div></div>
-    <div class="face back"><div id="backText" class="mean">Nghĩa</div></div>
+<div class="container">
+  <div class="header">
+    <div class="lesson-selector">
+      <select id="lessonSelect"></select>
+    </div>
+    
+    <div class="controls-row">
+      <button id="orderBtn" class="btn btn-secondary">Theo thứ tự</button>
+      <button id="shuffleBtn" class="btn btn-primary">Ngẫu nhiên</button>
+    </div>
+    
+    <input id="filter" class="filter-input" placeholder="🔍 Tìm từ..." />
   </div>
-  <div class="controls">
-    <button id="prev" class="nav">← Trước</button>
-    <button id="speak" class="nav">🔊</button>
-    <button id="next" class="nav">Sau →</button>
+
+  <div id="lessonTitle" class="lesson-title"></div>
+  
+  <div class="card-container">
+    <div id="card" class="card">
+      <div class="card-face card-front">
+        <div id="frontText" class="korean-text">단어</div>
+      </div>
+      <div class="card-face card-back">
+        <div id="backText" class="meaning-text">Nghĩa</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="navigation">
+    <button id="prev" class="nav-btn">← Trước</button>
+    <button id="speak" class="nav-btn speak-btn">🔊</button>
+    <button id="next" class="nav-btn">Sau →</button>
     <div id="progress" class="progress">0/0</div>
   </div>
 </div>
+
 <script>
 // ================== DỮ LIỆU BÀI 1-10 ==================
 const LESSONS = {
@@ -145,6 +496,252 @@ const LESSONS = {
      {"k":"케이크","v":"Bánh kem"},
      {"k":"미역국","v":"Canh rong biển"}
    ]
- },
- // ... (Bài 3 → 10, dữ liệu giống trong PDF, tiếp tục ở đây)
+ }
 };
+
+// ================== JAVASCRIPT LOGIC ==================
+let currentLesson = "1";
+let currentWords = [];
+let displayWords = [];
+let currentIndex = 0;
+let isShuffled = false;
+let isFlipped = false;
+
+// DOM elements
+const lessonSelect = document.getElementById('lessonSelect');
+const lessonTitle = document.getElementById('lessonTitle');
+const card = document.getElementById('card');
+const frontText = document.getElementById('frontText');
+const backText = document.getElementById('backText');
+const prevBtn = document.getElementById('prev');
+const nextBtn = document.getElementById('next');
+const speakBtn = document.getElementById('speak');
+const orderBtn = document.getElementById('orderBtn');
+const shuffleBtn = document.getElementById('shuffleBtn');
+const filter = document.getElementById('filter');
+const progress = document.getElementById('progress');
+
+// Initialize
+function init() {
+  populateLessonSelect();
+  loadLesson(currentLesson);
+  attachEventListeners();
+}
+
+function populateLessonSelect() {
+  Object.keys(LESSONS).forEach(key => {
+    const option = document.createElement('option');
+    option.value = key;
+    option.textContent = `Bài ${key}`;
+    lessonSelect.appendChild(option);
+  });
+}
+
+function loadLesson(lessonKey) {
+  const lesson = LESSONS[lessonKey];
+  if (!lesson) return;
+  
+  currentLesson = lessonKey;
+  currentWords = [...lesson.words];
+  displayWords = [...currentWords];
+  currentIndex = 0;
+  isFlipped = false;
+  
+  lessonTitle.textContent = lesson.title;
+  lessonSelect.value = lessonKey;
+  
+  updateCard();
+  updateProgress();
+  updateButtons();
+}
+
+function updateCard() {
+  if (displayWords.length === 0) {
+    frontText.textContent = "Không tìm thấy từ nào";
+    backText.textContent = "";
+    return;
+  }
+  
+  const word = displayWords[currentIndex];
+  frontText.textContent = word.k;
+  backText.textContent = word.v;
+  
+  // Reset flip state
+  card.classList.remove('flipped');
+  isFlipped = false;
+  
+  // Add pulse animation
+  card.classList.add('pulse');
+  setTimeout(() => card.classList.remove('pulse'), 300);
+}
+
+function updateProgress() {
+  progress.textContent = `${currentIndex + 1}/${displayWords.length}`;
+}
+
+function updateButtons() {
+  prevBtn.disabled = currentIndex === 0;
+  nextBtn.disabled = currentIndex >= displayWords.length - 1;
+  
+  if (isShuffled) {
+    shuffleBtn.classList.remove('btn-primary');
+    shuffleBtn.classList.add('btn-secondary');
+    orderBtn.classList.remove('btn-secondary');
+    orderBtn.classList.add('btn-primary');
+  } else {
+    orderBtn.classList.remove('btn-primary');
+    orderBtn.classList.add('btn-secondary');
+    shuffleBtn.classList.remove('btn-secondary');
+    shuffleBtn.classList.add('btn-primary');
+  }
+}
+
+function shuffleWords() {
+  for (let i = displayWords.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [displayWords[i], displayWords[j]] = [displayWords[j], displayWords[i]];
+  }
+  currentIndex = 0;
+  isShuffled = true;
+  updateCard();
+  updateProgress();
+  updateButtons();
+}
+
+function orderWords() {
+  displayWords = [...currentWords];
+  currentIndex = 0;
+  isShuffled = false;
+  updateCard();
+  updateProgress();
+  updateButtons();
+}
+
+function filterWords() {
+  const searchTerm = filter.value.toLowerCase().trim();
+  if (!searchTerm) {
+    displayWords = [...currentWords];
+  } else {
+    displayWords = currentWords.filter(word => 
+      word.k.toLowerCase().includes(searchTerm) || 
+      word.v.toLowerCase().includes(searchTerm)
+    );
+  }
+  
+  currentIndex = 0;
+  updateCard();
+  updateProgress();
+  updateButtons();
+}
+
+function flipCard() {
+  isFlipped = !isFlipped;
+  card.classList.toggle('flipped');
+}
+
+function speak() {
+  const word = displayWords[currentIndex];
+  if (!word) return;
+  
+  // Add visual feedback
+  speakBtn.classList.add('pulse');
+  setTimeout(() => speakBtn.classList.remove('pulse'), 300);
+  
+  if ('speechSynthesis' in window) {
+    const utterance = new SpeechSynthesisUtterance(word.k);
+    utterance.lang = 'ko-KR';
+    utterance.rate = 0.8;
+    speechSynthesis.speak(utterance);
+  }
+}
+
+function previousCard() {
+  if (currentIndex > 0) {
+    currentIndex--;
+    updateCard();
+    updateProgress();
+    updateButtons();
+  } else {
+    card.classList.add('shake');
+    setTimeout(() => card.classList.remove('shake'), 500);
+  }
+}
+
+function nextCard() {
+  if (currentIndex < displayWords.length - 1) {
+    currentIndex++;
+    updateCard();
+    updateProgress();
+    updateButtons();
+  } else {
+    card.classList.add('shake');
+    setTimeout(() => card.classList.remove('shake'), 500);
+  }
+}
+
+function attachEventListeners() {
+  lessonSelect.addEventListener('change', (e) => loadLesson(e.target.value));
+  card.addEventListener('click', flipCard);
+  prevBtn.addEventListener('click', previousCard);
+  nextBtn.addEventListener('click', nextCard);
+  speakBtn.addEventListener('click', speak);
+  orderBtn.addEventListener('click', orderWords);
+  shuffleBtn.addEventListener('click', shuffleWords);
+  filter.addEventListener('input', filterWords);
+  
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT') return;
+    
+    switch(e.key) {
+      case 'ArrowLeft':
+        e.preventDefault();
+        previousCard();
+        break;
+      case 'ArrowRight':
+        e.preventDefault();
+        nextCard();
+        break;
+      case ' ':
+        e.preventDefault();
+        flipCard();
+        break;
+      case 's':
+        e.preventDefault();
+        speak();
+        break;
+    }
+  });
+  
+  // Touch gestures
+  let touchStartX = 0;
+  let touchEndX = 0;
+  
+  card.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+  }, { passive: true });
+  
+  card.addEventListener('touchend', (e) => {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+  }, { passive: true });
+  
+  function handleSwipe() {
+    const swipeThreshold = 50;
+    const diff = touchStartX - touchEndX;
+    
+    if (Math.abs(diff) > swipeThreshold) {
+      if (diff > 0) {
+        nextCard(); // Swipe left = next
+      } else {
+        previousCard(); // Swipe right = previous
+      }
+    }
+  }
+}
+
+// Initialize app
+init();
+</script>
+</body>
+</html>
